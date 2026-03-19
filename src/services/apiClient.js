@@ -7,7 +7,9 @@
  * than calling fetch directly.
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api';
+// In development Vite proxies /api/* → localhost:8080/api/* (see vite.config.js).
+// Override with VITE_API_BASE_URL for production deployments.
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 
 // Maximum number of retries for network-level failures (not 4xx/5xx).
 const MAX_RETRIES = 2;

@@ -7,60 +7,82 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
+import Products from './pages/Products';
+import ProductDetail from './pages/ProductDetail';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { CartProvider } from './context/CartContext';
 import './App.css';
 
 /**
  * App — root component.
  *
- * Wraps the entire component tree in AuthProvider and ThemeProvider so that
- * any descendent can access authentication state (useAuth) and theme state
- * (useTheme) without prop-drilling.
+ * Provider order (outermost → innermost):
+ *   AuthProvider   — authentication state
+ *   ThemeProvider  — colour scheme
+ *   CartProvider   — shopping cart state (requires session from localStorage,
+ *                    not auth, so it lives outside ProtectedRoute)
  *
  * Route structure:
- *   /           — Home (public)
- *   /about      — About (public)
- *   /settings   — Settings (public)
- *   /login      — Login form (public; redirects if already authenticated)
- *   /dashboard  — Dashboard (protected)
+ *   /           — Home
+ *   /about      — About
+ *   /settings   — Settings
+ *   /login      — Login
+ *   /shop       — Product catalogue
+ *   /shop/:id   — Product detail
+ *   /cart       — Shopping cart
+ *   /checkout   — Checkout form
+ *   /orders/:id — Order confirmation
+ *   /dashboard  — Dashboard  (protected)
  *   /profile    — User profile (protected)
- *   *           — 404 Not Found
+ *   *           — 404
  */
 function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <Nav />
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/login" element={<Login />} />
+        <CartProvider>
+          <Nav />
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/login" element={<Login />} />
 
-          {/* Protected routes — redirect to /login when unauthenticated */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
+            {/* Shop routes */}
+            <Route path="/shop" element={<Products />} />
+            <Route path="/shop/:id" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/orders/:id" element={<OrderConfirmation />} />
 
-          {/* Catch-all 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* Protected routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Catch-all 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </CartProvider>
       </ThemeProvider>
     </AuthProvider>
   );
